@@ -40,7 +40,9 @@ v1 :
 - Recall on delayed flights (0.64) is meaningfully better than precision (0.31), a direct result of `scale_pos_weight` correcting for class imbalance — the model prioritizes catching delays over avoiding false alarms.
 - Overall accuracy (0.66) is moderate but not the right metric to optimize here, given the imbalance — macro F1 (0.59) better reflects that the model still struggles specifically on the delayed class.
 - Weather features (PRCP, SNOW, SNWD) are zero-inflated — most flights occur under clear conditions, limiting their standalone predictive value. `CONCURRENT_FLIGHTS` and the historical-average features appear to carry more signal.
+
 v2: 
+
 | Metric | Class 0 (On-time) | Class 1 (Delayed) | Overall |
 |---|---|---|---|
 | Precision | 0.87 | 0.33 | – |

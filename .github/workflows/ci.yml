@@ -1,0 +1,34 @@
+name: CI
+
+# Trigger: run this workflow on every push and every pull request
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    # The virtual machine GitHub spins up to run this job
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: pull your repo's code onto the runner
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: install Python (match your local version)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Step 3: install your project's dependencies
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      # Step 4: run the test suite
+      - name: Run tests
+        run: |
+          pytest tests/test_api.py -v
