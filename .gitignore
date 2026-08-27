@@ -1,7 +1,28 @@
-data/raw/
-*.parquet
-data/processed/
-*.parquet
-.venv/
+# Python
 __pycache__/
+*.pyc
+.venv/
+venv/
+
+# Data (large, regenerable from source)
+data/raw/
+data/processed/
+
+# Model artifacts (large binaries)
+models/shap_global_importance.png
+
+# MLflow
+mlruns/
+mlflow.db
+
+# Jupyter
 .ipynb_checkpoints/
+
+# OS/editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Docker
+*.log
