@@ -1,4 +1,5 @@
 import pandas as pd
+import json as js
 
 INPUT_PATH = r"C:\Users\hp\OneDrive\Bureau\personal_projects\flight-delay-predictor\data\processed\flights_filtered.parquet"
 OUTPUT_PATH = r"C:\Users\hp\OneDrive\Bureau\personal_projects\flight-delay-predictor\data\processed\flights_features.parquet"
@@ -21,6 +22,16 @@ def build_features():
 
     timeblock_hist = df.groupby("DEP_TIME_BLK")["DEP_DEL15"].mean().rename("timeblock_avg_delay")
     df = df.merge(timeblock_hist, on="DEP_TIME_BLK", how="left")
+ 
+ 
+    carrier_hist.to_json("api/carrier_avg_delay.json")
+    airport_hist.to_json("api/airport_avg_delay.json")
+    day_hist.to_json("api/day_avg_delay.json")
+    timeblock_hist.to_json("api/timeblock_avg_delay.json")
+ 
+    print("Saved priors lookup tables to api/")
+
+
 
     # final feature table
     features = df[
