@@ -19,15 +19,6 @@ VALID_FLIGHT = {
     "DISTANCE_GROUP": 4,
     "CARRIER_NAME": "Delta Air Lines Inc.",
     "DEPARTING_AIRPORT": "Atlanta Municipal",
-    "PRCP": 0.0,
-    "SNOW": 0.0,
-    "SNWD": 0.0,
-    "TMAX": 88.0,
-    "AWND": 7.5,
-    "carrier_avg_delay": 0.21,
-    "airport_avg_delay": 0.19,
-    "day_avg_delay": 0.20,
-    "timeblock_avg_delay": 0.25,
 }
 
 

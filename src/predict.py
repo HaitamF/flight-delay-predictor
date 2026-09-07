@@ -19,9 +19,9 @@ import pickle
 import pandas as pd
 
 # ---- CONFIG ----
-DATA_PATH = r"C:\Users\hp\OneDrive\Bureau\personal_projects\flight-delay-predictor\data\processed\flights_features.parquet"  # swap for new/unseen flights later
-MODEL_PATH = r"C:\Users\hp\OneDrive\Bureau\personal_projects\flight-delay-predictor\models\model.pkl"
-ENCODERS_PATH = r"C:\Users\hp\OneDrive\Bureau\personal_projects\flight-delay-predictor\models\encoders.pkl"
+DATA_PATH = "data/processed/flights_features.parquet"
+MODEL_PATH = "models/model.pkl"
+ENCODERS_PATH = "models/encoders.pkl"
 TARGET_COL = "DEP_DEL15"  # will be dropped if present (e.g. scoring training data)
 TOP_N = 15
 # -----------------
@@ -45,8 +45,16 @@ for map_name, mapping in category_maps.items():
     if col in df.columns:
         df[col] = df[col].map(mapping)
 
-# 4. Build feature matrix (drop target if present)
-X = df.drop(columns=[TARGET_COL]) if TARGET_COL in df.columns else df
+# The 15 features the v2 model was trained on — order matters for XGBoost
+MODEL_FEATURES = [
+    "MONTH", "DAY_OF_WEEK", "DEP_TIME_BLK", "DISTANCE_GROUP",
+    "CARRIER_NAME", "DEPARTING_AIRPORT",
+    "PRCP", "SNOW", "SNWD", "TMAX", "AWND",
+    "carrier_avg_delay", "airport_avg_delay", "day_avg_delay", "timeblock_avg_delay",
+]
+
+# 4. Build feature matrix — select only the columns the model was trained on
+X = df[MODEL_FEATURES]
 
 # 5. Predict probabilities for "delayed" class
 probs = model.predict_proba(X)[:, 1]
