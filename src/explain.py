@@ -16,6 +16,9 @@ import pickle
 import pandas as pd
 import shap
 import matplotlib.pyplot as plt
+import numpy as np 
+import json 
+import os
 
 # ---- CONFIG: adjust this to your actual filename ----
 PROCESSED_DATA_PATH = "C:\\Users\\hp\\OneDrive\\Bureau\\personal_projects\\flight-delay-predictor\\data\\processed\\flights_features.parquet"  # <-- change if different
@@ -52,6 +55,27 @@ X = df.drop(columns=[TARGET_COL])
 # 4. Run SHAP
 explainer = shap.TreeExplainer(model)
 shap_values = explainer.shap_values(X)
+mean_abs_shap = np.abs(shap_values).mean(axis=0)
+feature_importance = sorted(
+    zip(X.columns, mean_abs_shap), key=lambda x: x[1], reverse=True
+)[:5]
+ 
+top_features = [
+    {"name": name, "note": f"Mean |SHAP| = {importance:.4f}"}
+    for name, importance in feature_importance
+]
+ 
+existing_stats = {}
+if os.path.exists("api/model_stats.json"):
+    with open("api/model_stats.json", "r") as f:
+        existing_stats = json.load(f)
+ 
+existing_stats["top_features"] = top_features
+ 
+with open("api/model_stats.json", "w") as f:
+    json.dump(existing_stats, f, indent=2)
+ 
+print("Updated api/model_stats.json with real SHAP top features.")
 
 # 5. Global importance plot
 shap.summary_plot(shap_values, X, plot_type="bar", show=False)

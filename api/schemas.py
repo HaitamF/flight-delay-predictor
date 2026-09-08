@@ -32,3 +32,4 @@ class FlightInput(BaseModel):
 class PredictionOutput(BaseModel):
     delay_probability: float
     predicted_delayed: bool
+    enriched_data: dict

@@ -154,6 +154,7 @@ def predict(flight: FlightInput):
     return PredictionOutput(
         delay_probability=prob,
         predicted_delayed=predicted_delayed,
+        enriched_data={**weather, **hist_priors},
     )
 
 

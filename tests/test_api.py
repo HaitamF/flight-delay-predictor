@@ -44,6 +44,7 @@ def test_predict_valid_flight(client):
     body = response.json()
     assert "delay_probability" in body
     assert "predicted_delayed" in body
+    assert "enriched_data" in body
     assert 0.0 <= body["delay_probability"] <= 1.0
     assert isinstance(body["predicted_delayed"], bool)
 

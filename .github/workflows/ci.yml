@@ -1,6 +1,5 @@
-name: CI
+name: CI/CD
 
-# Trigger: run this workflow on every push and every pull request
 on:
   push:
     branches: [main]
@@ -9,26 +8,27 @@ on:
 
 jobs:
   test:
-    # The virtual machine GitHub spins up to run this job
     runs-on: ubuntu-latest
-
     steps:
-      # Step 1: pull your repo's code onto the runner
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # Step 2: install Python (match your local version)
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - run: pytest tests/test_api.py -v
 
-      # Step 3: install your project's dependencies
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-
-      # Step 4: run the test suite
-      - name: Run tests
-        run: |
-          pytest tests/test_api.py -v
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Deploy to Azure VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            cd flight-delay-predictor
+            git pull
+            sudo docker compose up --build -d

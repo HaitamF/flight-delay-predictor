@@ -11,9 +11,9 @@
     --border: #e0d9c8;
     --text: #2b2620;
     --muted: #8a7f6a;
-    --accent: #46c12d;
+    --accent: #c1622d;
     --red: #b8433a;
-    --green: #7a7a4c;
+    --green: #4c7a5c;
   }
   * { box-sizing: border-box; }
   body {
@@ -61,12 +61,15 @@
 
 <h1>Flight Delay Predictor</h1>
 <div class="subtitle">XGBoost model trained on 2019 US domestic flights - 96 supported airports</div>
+<div style="margin-bottom: 20px;">
+  <a href="about.html" style="color: var(--accent); font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid var(--accent); padding: 6px 14px; border-radius: 6px;">See the full pipeline & decisions →</a>
+</div>
 
 <div class="grid">
 
   <div class="card">
     <h2>Make a Prediction</h2>
-    <label>API URL <input id="apiUrl" value="http://172.189.57.25:8000"></label>
+    <label>API URL <input id="apiUrl" value="http://127.0.0.1:8000"></label>
     <label>Month (1-12) <input id="MONTH" type="number" value="7"></label>
     <label>Day of Week (1-7) <input id="DAY_OF_WEEK" type="number" value="5"></label>
     <label>Departure Time Block <input id="DEP_TIME_BLK" value="1700-1759"></label>
@@ -135,7 +138,19 @@ async function predict() {
     const data = await response.json();
     const pct = (data.delay_probability * 100).toFixed(1);
     resultDiv.className = data.predicted_delayed ? "delayed" : "ontime";
-    resultDiv.innerHTML = "<strong>" + (data.predicted_delayed ? "Likely Delayed" : "Likely On Time") + "</strong><br>Delay probability: " + pct + "%";
+
+    const e = data.enriched_data;
+    resultDiv.innerHTML =
+      "<strong>" + (data.predicted_delayed ? "Likely Delayed" : "Likely On Time") + "</strong><br>" +
+      "Delay probability: " + pct + "%" +
+      "<div style='margin-top:10px; padding-top:10px; border-top:1px solid var(--border); font-size:12px; color:var(--muted);'>" +
+      "<strong style='color:var(--text);'>Data fetched by the API for this flight:</strong><br>" +
+      "Precipitation: " + e.PRCP + " in &nbsp; | &nbsp; Snow: " + e.SNOW + " in &nbsp; | &nbsp; Max Temp: " + e.TMAX + " °F &nbsp; | &nbsp; Wind: " + e.AWND + " mph<br>" +
+      "Carrier avg delay rate: " + (e.carrier_avg_delay * 100).toFixed(1) + "% &nbsp; | &nbsp; " +
+      "Airport avg delay rate: " + (e.airport_avg_delay * 100).toFixed(1) + "% &nbsp; | &nbsp; " +
+      "Day avg delay rate: " + (e.day_avg_delay * 100).toFixed(1) + "% &nbsp; | &nbsp; " +
+      "Timeblock avg delay rate: " + (e.timeblock_avg_delay * 100).toFixed(1) + "%" +
+      "</div>";
 
     loadLiveStats();
   } catch (e) {

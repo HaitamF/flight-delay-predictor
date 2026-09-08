@@ -1,0 +1,35 @@
+{
+  "model_version": "v2",
+  "features_used": 15,
+  "recall_delayed": 0.6486,
+  "precision_delayed": 0.3252,
+  "accuracy": 0.6371,
+  "confusion_matrix": {
+    "true_negative": 345869,
+    "false_positive": 199738,
+    "false_negative": 52163,
+    "true_positive": 96279
+  },
+  "top_features": [
+    {
+      "name": "DEP_TIME_BLK",
+      "note": "Mean |SHAP| = 0.3532"
+    },
+    {
+      "name": "airport_avg_delay",
+      "note": "Mean |SHAP| = 0.1656"
+    },
+    {
+      "name": "carrier_avg_delay",
+      "note": "Mean |SHAP| = 0.1522"
+    },
+    {
+      "name": "MONTH",
+      "note": "Mean |SHAP| = 0.1465"
+    },
+    {
+      "name": "PRCP",
+      "note": "Mean |SHAP| = 0.1371"
+    }
+  ]
+}

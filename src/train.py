@@ -5,6 +5,9 @@ from xgboost import XGBClassifier  # gradient boosted trees - tabular data, nonl
 from sklearn.metrics import classification_report, roc_auc_score
 import mlflow
 import mlflow.xgboost
+import json
+import os
+from sklearn.metrics import confusion_matrix
 
 df = pd.read_parquet(r"C:\Users\hp\OneDrive\Bureau\personal_projects\flight-delay-predictor\data\processed\flights_features.parquet")
 
@@ -62,6 +65,33 @@ with mlflow.start_run():
     mlflow.log_metric("roc_auc", auc)
 
     mlflow.xgboost.log_model(model, "model")
+        # --- Write live model stats for the dashboard (real MLOps: no manual number-typing) ---
+    cm = confusion_matrix(y_test, y_pred)  # [[TN, FP], [FN, TP]]
+ 
+    # Preserve top_features from the last SHAP run if it exists, so this write doesn't erase it
+    existing_top_features = []
+    if os.path.exists("api/model_stats.json"):
+        with open("api/model_stats.json", "r") as f:
+            existing_top_features = json.load(f).get("top_features", [])
+ 
+    model_stats = {
+        "model_version": "v2",
+        "features_used": len(X.columns),
+        "recall_delayed": round(recall, 4),
+        "precision_delayed": round(precision, 4),
+        "accuracy": round(report["accuracy"], 4),
+        "confusion_matrix": {
+            "true_negative": int(cm[0][0]),
+            "false_positive": int(cm[0][1]),
+            "false_negative": int(cm[1][0]),
+            "true_positive": int(cm[1][1]),
+        },
+        "top_features": existing_top_features,
+    }
+    with open("api/model_stats.json", "w") as f:
+        json.dump(model_stats, f, indent=2)
+ 
+    print("Updated api/model_stats.json with live training results.")
 
 print(classification_report(y_test, y_pred))
 print("ROC AUC:", auc)
