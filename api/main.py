@@ -15,6 +15,7 @@ import os
 import requests
 import pandas as pd
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
 
 from api.schemas import FlightInput, PredictionOutput
 
@@ -191,3 +192,4 @@ def get_model_stats():
 def get_stats():
     """Live usage stats: how many predictions made through this API, and their split."""
     return _load_stats()
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
