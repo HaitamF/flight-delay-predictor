@@ -12,19 +12,23 @@ Run from project root:
 import pickle
 import json
 import os
+import time
 import requests
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 
 from api.schemas import FlightInput, PredictionOutput
+
+load_dotenv()
 
 MODEL_PATH = "models/model.pkl"
 ENCODERS_PATH = "models/encoders.pkl"
 
 app = FastAPI(title="Flight Delay Predictor", version="1.0")
 
-from fastapi.middleware.cors import CORSMiddleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # for a portfolio demo; restrict in real production
@@ -132,6 +136,18 @@ def predict(flight: FlightInput):
     row.update(weather)
     row.update(hist_priors)
 
+    # v3: this model was trained without timeblock_avg_delay
+    row.pop("timeblock_avg_delay", None)
+
+    # v3: evening + bad weather interaction feature
+    EVENING_BLOCKS = [
+        "1500-1559", "1600-1659", "1700-1759", "1800-1859", "1900-1959",
+    ]
+    row["evening_bad_weather"] = int(
+        row["DEP_TIME_BLK"] in EVENING_BLOCKS
+        and (weather.get("PRCP", 0) > 0.1 or weather.get("SNOW", 0) > 0.1)
+    )
+
     df = pd.DataFrame([row])
 
     # Apply the same categorical -> code mapping used at training time
@@ -148,7 +164,7 @@ def predict(flight: FlightInput):
             df[col] = code
 
     prob = float(model.predict_proba(df)[:, 1][0])
-    predicted_delayed = prob >= 0.5
+    predicted_delayed = prob >= 0.60
 
     _record_prediction(predicted_delayed)
 
@@ -192,4 +208,83 @@ def get_model_stats():
 def get_stats():
     """Live usage stats: how many predictions made through this API, and their split."""
     return _load_stats()
+
+
+RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
+RAPIDAPI_HOST = "aerodatabox.p.rapidapi.com"
+
+# Round-robin through a few supported airports to stay under the free quota.
+DEMO_AIRPORTS = {
+    "Logan International": "BOS",
+    "Atlanta Municipal": "ATL",
+    "Chicago O'Hare International": "ORD",
+}
+
+_flights_cache = {"data": [], "last_fetched": 0, "airport_index": 0}
+CACHE_TTL_SECONDS = 8 * 60 * 60  # refresh at most every 8 hours
+
+
+def _fetch_departures(airport_name: str, iata: str):
+    """One call = one airport's next few scheduled departures."""
+    url = f"https://{RAPIDAPI_HOST}/flights/airports/iata/{iata}"
+    now = pd.Timestamp.utcnow()
+    params = {
+        "withLeg": "false",
+        "direction": "Departure",
+        "withCancelled": "false",
+        "withCodeshared": "false",
+    }
+    from_time = now.strftime("%Y-%m-%dT%H:%M")
+    to_time = (now + pd.Timedelta(hours=4)).strftime("%Y-%m-%dT%H:%M")
+    url = f"{url}/{from_time}/{to_time}"
+
+    headers = {"X-RapidAPI-Key": RAPIDAPI_KEY, "X-RapidAPI-Host": RAPIDAPI_HOST}
+    resp = requests.get(url, headers=headers, params=params, timeout=10)
+    resp.raise_for_status()
+    data = resp.json()
+
+    results = []
+    for f in data.get("departures", [])[:5]:
+        try:
+            carrier = f["airline"]["name"]
+            dep_time = f["departure"]["scheduledTime"]["local"]
+            dt = pd.to_datetime(dep_time)
+            results.append({
+                "label": f"{carrier} {f.get('number', '')}".strip(),
+                "airport": airport_name,
+                "carrier": carrier,
+                "time": f"{dt.strftime('%H')}00-{dt.strftime('%H')}59",
+                "month": dt.month,
+                "dow": dt.isoweekday(),
+                "dist": 4,  # placeholder — see about.html limitations
+            })
+        except (KeyError, TypeError):
+            continue
+    return results
+
+
+def _refresh_todays_flights():
+    if not RAPIDAPI_KEY:
+        return  # no key configured — endpoint just serves the (empty) cache
+    names = list(DEMO_AIRPORTS.keys())
+    name = names[_flights_cache["airport_index"] % len(names)]
+    iata = DEMO_AIRPORTS[name]
+    try:
+        new_flights = _fetch_departures(name, iata)
+        if new_flights:
+            _flights_cache["data"] = new_flights
+        _flights_cache["last_fetched"] = time.time()
+        _flights_cache["airport_index"] += 1
+    except Exception as e:
+        print(f"AeroDataBox fetch failed: {e}")
+
+
+@app.get("/todays-flights")
+def todays_flights():
+    if time.time() - _flights_cache["last_fetched"] > CACHE_TTL_SECONDS:
+        _refresh_todays_flights()
+    return {"flights": _flights_cache["data"]}
+
+
+# Must be registered LAST — mounting "/" would otherwise swallow every route above it.
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")

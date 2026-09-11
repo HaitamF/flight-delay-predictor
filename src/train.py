@@ -11,6 +11,17 @@ from sklearn.metrics import confusion_matrix
 
 df = pd.read_parquet(r"C:\Users\hp\OneDrive\Bureau\personal_projects\flight-delay-predictor\data\processed\flights_features.parquet")
 
+# --- NEW: evening + bad weather interaction feature ---
+EVENING_BLOCKS = [
+    "1500-1559", "1600-1659", "1700-1759", "1800-1859", "1900-1959",
+]
+df["evening_bad_weather"] = (
+    df["DEP_TIME_BLK"].isin(EVENING_BLOCKS) &
+    ((df["PRCP"] > 0.1) | (df["SNOW"] > 0.1))
+).astype(int)
+# --- end new block ---
+
+categorical_cols = ["DEP_TIME_BLK", "CARRIER_NAME", "DEPARTING_AIRPORT"]
 # categorical columns in this feature set
 categorical_cols = ["DEP_TIME_BLK", "CARRIER_NAME", "DEPARTING_AIRPORT"]
 
@@ -20,7 +31,7 @@ for col in categorical_cols:
     category_maps[col.lower() + "_map"] = dict(zip(df[col], df[col].cat.codes))
     df[col] = df[col].cat.codes
 
-X = df.drop(columns=["DEP_DEL15"])
+X = df.drop(columns=["DEP_DEL15","timeblock_avg_delay"])
 y = df["DEP_DEL15"]
 
 X_train, X_test, y_train, y_test = train_test_split(

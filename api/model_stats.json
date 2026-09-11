@@ -1,14 +1,14 @@
 {
   "model_version": "v2",
   "features_used": 15,
-  "recall_delayed": 0.6486,
-  "precision_delayed": 0.3252,
-  "accuracy": 0.6371,
+  "recall_delayed": 0.6479,
+  "precision_delayed": 0.325,
+  "accuracy": 0.6369,
   "confusion_matrix": {
-    "true_negative": 345869,
-    "false_positive": 199738,
-    "false_negative": 52163,
-    "true_positive": 96279
+    "true_negative": 345883,
+    "false_positive": 199724,
+    "false_negative": 52267,
+    "true_positive": 96175
   },
   "top_features": [
     {

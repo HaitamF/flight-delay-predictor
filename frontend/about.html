@@ -2,61 +2,89 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Flight Delay Predictor — Pipeline Overview</title>
 <style>
   :root {
-    --bg: #f4f1ea;
-    --card: #ffffff;
-    --border: #e0d9c8;
-    --text: #2b2620;
-    --muted: #8a7f6a;
-    --accent: #c1622d;
-    --red: #b8433a;
-    --green: #4c7a5c;
+    --bg: #0a0a0f;
+    --panel: #16161d;
+    --border: #29293380;
+    --text: #f4f1f6;
+    --muted: #9a94a3;
+    --accent: #e0447e;
+    --accent-deep: #7c2d6b;
+    --accent-dim: rgba(224,68,126,0.14);
+    --amber: #e8a33d;
+    --red: #e2574c;
+    --green: #46b880;
   }
   * { box-sizing: border-box; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-    background: var(--bg); color: var(--text); margin: 0; padding: 30px 20px 80px;
+    background: var(--bg); color: var(--text); margin: 0; padding: 0 0 70px;
     line-height: 1.6;
   }
-  .wrap { max-width: 820px; margin: 0 auto; }
-  h1 { font-size: 28px; margin-bottom: 4px; }
-  .subtitle { color: var(--muted); margin-bottom: 10px; font-size: 14px; }
-  nav { margin-bottom: 30px; }
-  nav a {
-    color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 600;
-    border: 1px solid var(--accent); padding: 6px 14px; border-radius: 6px;
+  .wrap { max-width: 780px; margin: 0 auto; padding: 0 16px; }
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    max-width: 780px; margin: 16px auto 0; padding: 10px 20px;
   }
-  nav a:hover { background: var(--accent); color: #fff8f0; }
+  .topbar .logo { font-weight: 700; font-size: 15px; }
+  .topbar a {
+    color: var(--text); text-decoration: none; font-size: 13px; font-weight: 600;
+    background: var(--accent); padding: 8px 18px; border-radius: 999px;
+  }
+  .hero {
+    position: relative; overflow: hidden; border-radius: 18px;
+    max-width: 780px; margin: 14px auto 24px; padding: 40px 26px 34px;
+    background:
+      radial-gradient(120% 140% at 15% 0%, #d6427e33 0%, transparent 55%),
+      linear-gradient(150deg, #1a0f22 0%, #3d1636 35%, #7c2d6b 68%, #e0447e 100%);
+  }
+  h1 { font-size: clamp(22px, 5vw, 30px); margin: 0 0 6px; font-weight: 700; letter-spacing: -0.3px; }
+  .subtitle { color: #d9c9d6; margin-bottom: 0; font-size: 14px; max-width: 460px; }
   section {
-    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-    padding: 24px; margin-bottom: 20px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px; margin-bottom: 16px;
   }
-  h2 { font-size: 18px; margin-top: 0; color: var(--accent); }
+  h2 { font-size: 17px; margin-top: 0; color: var(--accent); }
   h3 { font-size: 15px; margin-bottom: 6px; }
   p { font-size: 14px; color: var(--text); }
   ul { font-size: 14px; padding-left: 20px; }
   li { margin-bottom: 6px; }
   .tag {
-    display: inline-block; background: #f4ede0; border: 1px solid var(--border);
+    display: inline-block; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
     color: var(--muted); font-size: 12px; padding: 3px 10px; border-radius: 20px;
     margin: 2px 4px 2px 0;
   }
   table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
   th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
   th { color: var(--muted); font-weight: 600; }
-  .highlight { background: #f4ede0; border-left: 3px solid var(--accent); padding: 10px 14px; font-size: 13px; margin-top: 10px; border-radius: 4px; }
-  .limitation { border-left: 3px solid var(--red); background: rgba(184,67,58,0.06); }
+  .highlight { background: var(--accent-dim); border-left: 3px solid var(--accent); padding: 10px 14px; font-size: 13px; margin-top: 10px; border-radius: 4px; }
+  .finding { border-left: 3px solid var(--amber); background: rgba(242,184,75,0.08); padding: 10px 14px; font-size: 13px; margin-top: 10px; border-radius: 4px; }
+  .limitation { border-left: 3px solid var(--red); background: rgba(226,87,76,0.06); }
+  @media (max-width: 480px) {
+    table, thead, tbody, th, td, tr { display: block; }
+    th { display: none; }
+    td { border-bottom: none; padding: 3px 0; }
+    tr { margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    td:first-child { font-weight: 600; }
+  }
 </style>
 </head>
 <body>
+
+<div class="topbar">
+  <span class="logo">✈ Flight Delay Predictor</span>
+  <a href="index.html">Live demo</a>
+</div>
+
+<div class="hero">
+  <h1>How it was built</h1>
+  <div class="subtitle">An end-to-end ML project: data to model to API to deployment, with the real decisions and trade-offs behind it.</div>
+</div>
+
 <div class="wrap">
-
-<nav><a href="index.html">← Back to Live Demo</a></nav>
-
-<h1>Flight Delay Predictor — How It Was Built</h1>
-<div class="subtitle">An end-to-end ML project: data to model to API to deployment, with the real decisions and trade-offs behind it.</div>
 
 <section>
   <h2>1. Problem &amp; Data</h2>
@@ -68,69 +96,85 @@
 
 <section>
   <h2>2. Feature Engineering</h2>
-  <p>Rather than using the dataset's built-in historical columns (which risk leakage from future information), historical delay averages were self-computed from the training data: carrier, airport, day-of-week, and time-block average delay rates.</p>
-  <p>Categorical variables (carrier, airport, time block) were encoded via <code>.cat.codes</code> rather than one-hot encoding, appropriate for a tree-based model that doesn't need linear-friendly encodings and handles high-cardinality categories natively.</p>
-  <p>Class imbalance (~19% delayed) was addressed via <code>scale_pos_weight</code> in XGBoost, rather than resampling, keeping the full dataset intact while correcting the loss function's bias toward the majority class.</p>
+  <p>Historical delay averages (carrier, airport, day-of-week, time-block) were self-computed from the training data rather than using the dataset's built-in historical columns, which risk leakage from future information.</p>
+  <p>Categorical variables were encoded via <code>.cat.codes</code> rather than one-hot encoding — appropriate for a tree-based model that handles high-cardinality categories natively.</p>
+  <p>Class imbalance (~19% delayed) was addressed via <code>scale_pos_weight</code>, correcting the loss function's bias toward the majority class without resampling.</p>
 </section>
 
 <section>
-  <h2>3. The Feature-Scoping Decision (v1 to v2)</h2>
-  <p>The first model (v1) used 21 features, including <code>PLANE_AGE</code>, <code>CONCURRENT_FLIGHTS</code>, monthly flight-volume counts, and <code>PREVIOUS_AIRPORT</code>.</p>
-  <p>Once building the live prediction API, a key question surfaced: could a real user actually provide these inputs? The answer was no. These fields require either aircraft-tracking infrastructure (tail number history, live traffic counts) or data no free/public API exposes.</p>
+  <h2>3. The Feature-Scoping Decision (v1 → v2)</h2>
+  <p>v1 used 21 features, including <code>PLANE_AGE</code>, <code>CONCURRENT_FLIGHTS</code>, monthly flight-volume counts, and <code>PREVIOUS_AIRPORT</code>. Once building the live API, the question became: could a real user actually provide these? No — they require aircraft-tracking infrastructure or data no free API exposes.</p>
   <div class="highlight">
-    Rather than silently imputing placeholder values for unavailable inputs, which would quietly degrade prediction integrity, the model was retrained on 15 features, keeping only what a user can realistically provide or what can be reliably sourced live (weather API, precomputed historical priors).
+    Rather than silently imputing placeholder values, the model was retrained on 15 deployable features. Performance barely moved, evidence those 6 features carried little marginal signal beyond the historical priors already present.
   </div>
   <table>
     <tr><th></th><th>v1 (21 features)</th><th>v2 (15 features)</th></tr>
     <tr><td>Recall (delayed)</td><td>0.64</td><td>0.65</td></tr>
     <tr><td>Precision (delayed)</td><td>0.31</td><td>0.33</td></tr>
   </table>
-  <p style="margin-top:10px;">Performance was effectively unchanged after dropping 6 features, evidence they carried little marginal signal beyond the historical priors. Deployability was prioritized over marginal feature completeness, without sacrificing accuracy.</p>
 </section>
 
 <section>
   <h2>4. Interpretability &amp; Error Analysis (SHAP)</h2>
-  <p>SHAP (TreeExplainer) was used to understand which features drive predictions. <code>DEP_TIME_BLK</code> (scheduled departure time window) emerged as the most decisive feature, consistent with real airline operations, since delays cascade through the day as aircraft and crew schedules compound.</p>
-  <p>Manual error analysis on the confusion matrix revealed a concrete pattern:</p>
+  <p>SHAP (TreeExplainer) identified <code>DEP_TIME_BLK</code> as the most decisive feature by a wide margin — consistent with real airline operations, where delays cascade through the day as aircraft and crew schedules compound.</p>
+  <p>Manual error analysis on the confusion matrix found a concrete pattern:</p>
   <ul>
-    <li>False positives (flagged delayed, actually on-time) cluster in evening time blocks, with high historical time-block delay rates and worse-than-average weather.</li>
-    <li>False negatives (missed real delays) cluster in morning time blocks, with low historical delay rates and good weather. Delays here come from causes the model has no signal for (mechanical, staffing, one-offs).</li>
+    <li>False positives cluster in evening blocks with high historical delay rates and worse-than-average weather — the model over-triggers on evenings that run fine anyway.</li>
+    <li>False negatives cluster in morning blocks with low historical rates and good weather — delays here come from causes with no signal in the data (mechanical, staffing, one-offs).</li>
   </ul>
   <div class="highlight">
-    Conclusion: the model over-relies on time-of-day as a proxy signal. Documented as an honest, known limitation rather than hidden, and a legitimate direction for a future v3 (feature interactions, threshold tuning).
+    Diagnosis: the model leans on time-of-day as a blunt proxy instead of distinguishing "evening, clear skies" from "evening, storming." This became the basis for the v3 experiments below.
   </div>
 </section>
 
 <section>
-  <h2>5. Live API &amp; Enrichment</h2>
-  <p>The API (FastAPI) only asks users for what they'd actually know about their flight: month, day of week, departure time block, distance group, carrier, and departing airport.</p>
-  <p>Everything else is fetched automatically, server-side:</p>
+  <h2>5. v3 Experiments — Testing the Diagnosis</h2>
+  <p>Three concrete fixes were tested against the time-of-day over-reliance found above, rather than left as untested theory:</p>
   <ul>
-    <li>Live weather, via the Open-Meteo API, using a coordinate lookup table for the 96 airports the model supports</li>
-    <li>Historical priors, precomputed carrier/airport/day/time-block average delay rates, looked up from saved reference tables</li>
+    <li><strong>Explicit interaction feature</strong> — added an "evening AND meaningful rain/snow" flag so the model wouldn't need to infer the interaction on its own. Result: precision and recall were statistically unchanged.</li>
+    <li><strong>Dropped the redundant time-block prior</strong> — removed <code>timeblock_avg_delay</code>, which is derived directly from <code>DEP_TIME_BLK</code>, to test whether the model was "double-counting" it. Result: also unchanged.</li>
+    <li><strong>Threshold tuning</strong> — plotted a full precision-recall curve rather than trusting the default 0.5 cutoff.</li>
   </ul>
-  <p>Unknown carriers or airports (outside the training vocabulary) are explicitly rejected with a clear error, rather than silently mispredicting, a deliberate integrity decision consistent with the feature-scoping choice above.</p>
+  <div class="finding">
+    Finding: both feature-engineering fixes tested clean and negative — tree-based models like XGBoost already discover feature interactions on their own, so handing one to it explicitly added no new information. This is a real result: it shows the ~0.33 precision ceiling is closer to a <strong>data limitation</strong> (no signal for mechanical/staffing/one-off delays) than a fixable feature-engineering gap.
+  </div>
+  <p>Threshold tuning, by contrast, produced a real, usable gain with zero retraining risk:</p>
+  <table>
+    <tr><th>Threshold</th><th>Precision</th><th>Recall</th></tr>
+    <tr><td>0.50 (previous default)</td><td>0.33</td><td>0.65</td></tr>
+    <tr><td><strong>0.60 (deployed)</strong></td><td><strong>0.40</strong></td><td><strong>0.40</strong></td></tr>
+    <tr><td>0.65</td><td>0.45</td><td>0.28</td></tr>
+  </table>
+  <p style="margin-top:10px;">0.60 was chosen as the operating point: a meaningful precision gain (fewer false alarms) while recall stays usable, rather than collapsing at higher thresholds.</p>
 </section>
 
 <section>
-  <h2>6. MLOps Stack</h2>
+  <h2>6. Live API &amp; Enrichment</h2>
+  <p>The API (FastAPI) only asks users for what they'd actually know: month, day of week, departure time block, distance group, carrier, and departing airport.</p>
+  <p>Everything else is fetched server-side: live weather from Open-Meteo (via a 96-airport coordinate table), and precomputed historical priors looked up from reference tables. Unknown carriers or airports are explicitly rejected rather than silently mispredicted.</p>
+</section>
+
+<section>
+  <h2>7. MLOps Stack</h2>
   <table>
     <tr><th>Component</th><th>Tool</th><th>Purpose</th></tr>
-    <tr><td>Experiment tracking</td><td>MLflow</td><td>Logs params, metrics, and model artifacts per training run for comparison across versions</td></tr>
-    <tr><td>Testing</td><td>Pytest + FastAPI TestClient</td><td>Automated tests for health check, valid predictions, and rejection of unknown categories</td></tr>
-    <tr><td>CI</td><td>GitHub Actions</td><td>Runs the full test suite automatically on every push</td></tr>
+    <tr><td>Experiment tracking</td><td>MLflow (SQLite backend)</td><td>Logs params, metrics, and model artifacts per run for comparison across versions</td></tr>
+    <tr><td>Interpretability</td><td>SHAP (TreeExplainer)</td><td>Global feature importance and the basis for the v3 error-analysis experiments</td></tr>
+    <tr><td>Testing</td><td>Pytest + FastAPI TestClient</td><td>Health check, valid predictions, rejection of unknown categories</td></tr>
+    <tr><td>CI/CD</td><td>GitHub Actions</td><td>Runs tests on every push; deploys to the VM via SSH on success</td></tr>
     <tr><td>Containerization</td><td>Docker + Docker Compose</td><td>Reproducible environment, identical locally and in deployment</td></tr>
-    <tr><td>Deployment</td><td>Azure VM (Ubuntu, Docker)</td><td>Publicly reachable live API</td></tr>
+    <tr><td>Deployment</td><td>Azure VM (Ubuntu, Docker)</td><td>Publicly reachable live API, manually started/stopped to manage student credit</td></tr>
   </table>
 </section>
 
 <section class="limitation">
-  <h2>7. Known Limitations (documented honestly)</h2>
+  <h2>8. Known Limitations (documented honestly)</h2>
   <ul>
-    <li>96-airport scope: the model can only predict for airports present in the 2019 training data, a structural limit of categorical encoding, not fixable by fetching live data for new airports.</li>
-    <li>Precision (0.33): roughly 1 in 3 flights flagged as delayed are false alarms, documented as an honest baseline, tied to the time-of-day over-reliance found in error analysis.</li>
-    <li>Weather fallback: if Open-Meteo is unreachable, the API falls back to neutral default weather values rather than failing the request entirely, noted here for transparency.</li>
-    <li>Deployment uptime: hosted on a manually-managed VM (Azure Student credits), not an always-on production service. May be offline between demo sessions.</li>
+    <li>96-airport scope: the model only predicts for airports present in the 2019 training data — a structural limit of categorical encoding, not fixable by fetching live data for new airports.</li>
+    <li>Precision (0.40 at the deployed threshold): tested against two feature-engineering fixes that did not move it, suggesting the remaining gap is closer to a data limitation than a modeling one.</li>
+    <li>Weather fallback: if Open-Meteo is unreachable, the API falls back to neutral default weather values rather than failing the request.</li>
+    <li>Deployment uptime: hosted on a manually-managed VM (Azure Student credits), not an always-on production service.</li>
+    <li>US-only: scoped to US domestic flights due to no accessible bulk historical dataset for other regions at the time of writing.</li>
   </ul>
 </section>
 

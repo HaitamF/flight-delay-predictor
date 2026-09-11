@@ -2,78 +2,121 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Flight Delay Predictor</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
   :root {
-    --bg: #f4f1ea;
-    --card: #ffffff;
-    --border: #e0d9c8;
-    --text: #2b2620;
-    --muted: #8a7f6a;
-    --accent: #c1622d;
-    --red: #b8433a;
-    --green: #4c7a5c;
+    --bg: #0a0a0f;
+    --panel: #16161d;
+    --border: #29293380;
+    --text: #f4f1f6;
+    --muted: #9a94a3;
+    --accent: #e0447e;
+    --accent-deep: #7c2d6b;
+    --accent-dim: rgba(224,68,126,0.14);
+    --teal: #3f9d94;
+    --red: #e2574c;
+    --green: #46b880;
   }
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
     background: var(--bg);
     color: var(--text);
     margin: 0;
-    padding: 30px 20px 60px;
+    padding: 0 0 50px;
   }
-  .wrap { max-width: 960px; margin: 0 auto; }
-  h1 { font-size: 26px; margin-bottom: 4px; }
-  .subtitle { color: var(--muted); margin-bottom: 30px; font-size: 14px; }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    max-width: 960px; margin: 16px auto 0; padding: 10px 20px;
+  }
+  .topbar .logo { font-weight: 700; font-size: 15px; letter-spacing: 0.2px; }
+  .topbar a {
+    color: var(--text); text-decoration: none; font-size: 13px; font-weight: 600;
+    background: var(--accent); padding: 8px 18px; border-radius: 999px;
+  }
+  .hero {
+    position: relative; overflow: hidden; border-radius: 18px;
+    max-width: 960px; margin: 14px auto 20px; padding: 46px 28px 40px;
+    background:
+      radial-gradient(120% 140% at 15% 0%, #d6427e33 0%, transparent 55%),
+      linear-gradient(150deg, #1a0f22 0%, #3d1636 35%, #7c2d6b 68%, #e0447e 100%);
+  }
+  h1 { font-size: clamp(24px, 5.5vw, 34px); margin: 0 0 6px; font-weight: 700; letter-spacing: -0.3px; }
+  h1 .accent { color: #ffb3d3; }
+  .subtitle { color: #d9c9d6; margin-bottom: 0; font-size: 14px; max-width: 480px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
   @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-  .card h2 { font-size: 16px; margin: 0 0 15px; color: var(--text); }
-  label { display: block; margin-top: 10px; font-size: 13px; color: var(--muted); }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+  .card h2 { font-size: 16px; margin: 0 0 14px; color: var(--text); }
+  label { display: block; margin-top: 12px; font-size: 13px; color: var(--muted); }
   input {
-    width: 100%; padding: 8px 10px; margin-top: 4px;
-    background: #faf8f3; border: 1px solid var(--border); border-radius: 6px;
-    color: var(--text); font-size: 14px;
+    width: 100%; padding: 10px 12px; margin-top: 4px;
+    background: #0c1118; border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-size: 16px;
   }
   input:focus { outline: none; border-color: var(--accent); }
   button {
-    margin-top: 20px; padding: 10px 20px; font-size: 14px; font-weight: 600;
-    background: var(--accent); color: #fff8f0; border: none; border-radius: 8px;
+    margin-top: 20px; padding: 12px 20px; font-size: 15px; font-weight: 600;
+    background: var(--accent); color: #1c1400; border: none; border-radius: 8px;
     cursor: pointer; width: 100%;
   }
-  button:hover { opacity: 0.9; }
-  #result { margin-top: 16px; padding: 14px; border-radius: 8px; display: none; font-size: 14px; }
-  .delayed { background: rgba(229,72,77,0.15); border: 1px solid var(--red); }
-  .ontime { background: rgba(70,167,89,0.15); border: 1px solid var(--green); }
-  .stat-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px solid var(--border); }
+  button:active { opacity: 0.85; }
+  #result { margin-top: 16px; padding: 14px; border-radius: 8px; display: none; font-size: 14px; word-wrap: break-word; }
+  .delayed { background: rgba(226,87,76,0.15); border: 1px solid var(--red); }
+  .ontime { background: rgba(70,184,128,0.15); border: 1px solid var(--green); }
+  .stat-row { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; font-size: 13px; border-bottom: 1px solid var(--border); }
   .stat-row:last-child { border-bottom: none; }
   .stat-label { color: var(--muted); }
-  .stat-value { font-weight: 600; }
-  .dashboard-section { margin-top: 30px; }
+  .stat-value { font-weight: 600; text-align: right; }
+  .dashboard-section { margin-top: 20px; }
   canvas { max-height: 220px; }
   .top-features li { font-size: 13px; margin-bottom: 6px; color: var(--muted); }
   .top-features strong { color: var(--text); }
+  .flight-row {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; flex-wrap: wrap;
+  }
+  .flight-row:last-child { border-bottom: none; }
+  .flight-info strong { display: block; font-size: 14px; }
+  .flight-info span { color: var(--muted); font-size: 12px; }
+  .flight-row button {
+    width: auto; margin-top: 0; padding: 7px 14px; font-size: 13px;
+    background: transparent; border: 1px solid var(--accent); color: var(--accent);
+  }
+  .flight-note { font-size: 12px; color: var(--muted); margin-top: 6px; }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-<h1>Flight Delay Predictor</h1>
-<div class="subtitle">XGBoost model trained on 2019 US domestic flights - 96 supported airports</div>
-<div style="margin-bottom: 20px;">
-  <a href="about.html" style="color: var(--accent); font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid var(--accent); padding: 6px 14px; border-radius: 6px;">See the full pipeline & decisions →</a>
+<div class="topbar">
+  <span class="logo">✈ Flight Delay Predictor</span>
+  <a href="about.html">How it's built</a>
 </div>
+
+<div class="hero">
+  <h1>Know before you <span class="accent">go</span></h1>
+  <div class="subtitle">XGBoost model trained on 2019 US domestic flights — 96 supported airports, live weather enrichment, no sign-up required.</div>
+</div>
+
+<div class="wrap">
 
 <div class="grid">
 
+  <div class="card" style="grid-column: 1 / -1;">
+    <h2>Today's Flights</h2>
+    <p style="font-size:13px; color:var(--muted); margin-top:-6px;">Pick a real flight to try, or fill in the form yourself below.</p>
+    <div id="todaysFlights"></div>
+  </div>
+
   <div class="card">
     <h2>Make a Prediction</h2>
-    <label>API URL <input id="apiUrl" value="http://127.0.0.1:8000"></label>
-    <label>Month (1-12) <input id="MONTH" type="number" value="7"></label>
-    <label>Day of Week (1-7) <input id="DAY_OF_WEEK" type="number" value="5"></label>
+    <label>Month (1-12) <input id="MONTH" type="number" value="7" inputmode="numeric"></label>
+    <label>Day of Week (1-7) <input id="DAY_OF_WEEK" type="number" value="5" inputmode="numeric"></label>
     <label>Departure Time Block <input id="DEP_TIME_BLK" value="1700-1759"></label>
-    <label>Distance Group (1-11) <input id="DISTANCE_GROUP" type="number" value="4"></label>
+    <label>Distance Group (1-11) <input id="DISTANCE_GROUP" type="number" value="4" inputmode="numeric"></label>
     <label>Carrier Name <input id="CARRIER_NAME" value="Delta Air Lines Inc."></label>
     <label>Departing Airport <input id="DEPARTING_AIRPORT" value="Atlanta Municipal"></label>
     <button onclick="predict()">Predict</button>
@@ -82,7 +125,7 @@
 
   <div>
     <div class="card">
-      <h2>Model Performance (v2, static)</h2>
+      <h2>Model Performance (live)</h2>
       <div id="modelStatsRows"></div>
       <div class="dashboard-section"><canvas id="confusionChart"></canvas></div>
       <div class="dashboard-section">
@@ -91,7 +134,7 @@
       </div>
     </div>
 
-    <div class="card" style="margin-top: 20px;">
+    <div class="card" style="margin-top: 18px;">
       <h2>Live Usage (this API instance)</h2>
       <div id="liveStatsRows"></div>
       <div class="dashboard-section"><canvas id="liveChart"></canvas></div>
@@ -102,6 +145,38 @@
 </div>
 
 <script>
+// Set this to wherever the API is actually running.
+const API_BASE = "http://127.0.0.1:8000";
+
+// Placeholder illustrative flights, since a live flight feed isn't built yet
+// (would need a paid aviation-data API — see about.html limitations).
+// Swap this array for real fetched flights later without touching the rest of the page.
+const TODAYS_FLIGHTS = [
+  { label: "Delta 1421", airport: "Atlanta Municipal", carrier: "Delta Air Lines Inc.", time: "1700-1759", month: 9, dow: 5, dist: 4 },
+  { label: "JetBlue 640", airport: "Logan International", carrier: "JetBlue Airways", time: "1900-1959", month: 9, dow: 5, dist: 3 },
+  { label: "Southwest 2210", airport: "Chicago O'Hare International", carrier: "Southwest Airlines Co.", time: "0800-0859", month: 9, dow: 5, dist: 5 },
+];
+
+function renderTodaysFlights() {
+  const el = document.getElementById("todaysFlights");
+  el.innerHTML = TODAYS_FLIGHTS.map(function(f, i) {
+    return '<div class="flight-row"><div class="flight-info"><strong>' + f.label + '</strong>' +
+      '<span>' + f.airport + ' · ' + f.time + '</span></div>' +
+      '<button onclick="useFlight(' + i + ')">Try this flight</button></div>';
+  }).join("") + '<div class="flight-note">Illustrative example flights — live flight lookup is a planned addition.</div>';
+}
+
+function useFlight(i) {
+  const f = TODAYS_FLIGHTS[i];
+  document.getElementById("MONTH").value = f.month;
+  document.getElementById("DAY_OF_WEEK").value = f.dow;
+  document.getElementById("DEP_TIME_BLK").value = f.time;
+  document.getElementById("DISTANCE_GROUP").value = f.dist;
+  document.getElementById("CARRIER_NAME").value = f.carrier;
+  document.getElementById("DEPARTING_AIRPORT").value = f.airport;
+  predict();
+}
+
 let confusionChartInstance = null;
 let liveChartInstance = null;
 
@@ -120,7 +195,7 @@ async function predict() {
     DEPARTING_AIRPORT: document.getElementById("DEPARTING_AIRPORT").value,
   };
 
-  const base = document.getElementById("apiUrl").value.replace(/\/$/, "");
+  const base = API_BASE.replace(/\/$/, "");
 
   try {
     const response = await fetch(base + "/predict", {
@@ -145,11 +220,10 @@ async function predict() {
       "Delay probability: " + pct + "%" +
       "<div style='margin-top:10px; padding-top:10px; border-top:1px solid var(--border); font-size:12px; color:var(--muted);'>" +
       "<strong style='color:var(--text);'>Data fetched by the API for this flight:</strong><br>" +
-      "Precipitation: " + e.PRCP + " in &nbsp; | &nbsp; Snow: " + e.SNOW + " in &nbsp; | &nbsp; Max Temp: " + e.TMAX + " °F &nbsp; | &nbsp; Wind: " + e.AWND + " mph<br>" +
-      "Carrier avg delay rate: " + (e.carrier_avg_delay * 100).toFixed(1) + "% &nbsp; | &nbsp; " +
-      "Airport avg delay rate: " + (e.airport_avg_delay * 100).toFixed(1) + "% &nbsp; | &nbsp; " +
-      "Day avg delay rate: " + (e.day_avg_delay * 100).toFixed(1) + "% &nbsp; | &nbsp; " +
-      "Timeblock avg delay rate: " + (e.timeblock_avg_delay * 100).toFixed(1) + "%" +
+      "Precipitation: " + e.PRCP + " in &nbsp;|&nbsp; Snow: " + e.SNOW + " in &nbsp;|&nbsp; Max Temp: " + e.TMAX + " °F &nbsp;|&nbsp; Wind: " + e.AWND + " mph<br>" +
+      "Carrier avg delay: " + (e.carrier_avg_delay * 100).toFixed(1) + "% &nbsp;|&nbsp; " +
+      "Airport avg delay: " + (e.airport_avg_delay * 100).toFixed(1) + "% &nbsp;|&nbsp; " +
+      "Day avg delay: " + (e.day_avg_delay * 100).toFixed(1) + "%" +
       "</div>";
 
     loadLiveStats();
@@ -159,7 +233,7 @@ async function predict() {
 }
 
 async function loadModelStats() {
-  const base = document.getElementById("apiUrl").value.replace(/\/$/, "");
+  const base = API_BASE.replace(/\/$/, "");
   try {
     const res = await fetch(base + "/model-stats");
     const stats = await res.json();
@@ -179,12 +253,15 @@ async function loadModelStats() {
         labels: ["True Neg", "False Pos", "True Pos", "False Neg"],
         datasets: [{
           data: [cm.true_negative, cm.false_positive, cm.true_positive, cm.false_negative],
-          backgroundColor: ["#4c7a5c", "#b8433a", "#4c7a5c", "#b8433a"]
+          backgroundColor: ["#46b880", "#e2574c", "#46b880", "#e2574c"]
         }]
       },
       options: {
         plugins: { legend: { display: false } },
-        scales: { y: { ticks: { color: "#8b93a3" } }, x: { ticks: { color: "#8b93a3" } } }
+        scales: {
+          y: { ticks: { color: "#8a97a8" }, grid: { color: "#232d3a" } },
+          x: { ticks: { color: "#8a97a8" }, grid: { color: "#232d3a" } }
+        }
       }
     });
 
@@ -196,7 +273,7 @@ async function loadModelStats() {
 }
 
 async function loadLiveStats() {
-  const base = document.getElementById("apiUrl").value.replace(/\/$/, "");
+  const base = API_BASE.replace(/\/$/, "");
   try {
     const res = await fetch(base + "/stats");
     const stats = await res.json();
@@ -213,10 +290,10 @@ async function loadLiveStats() {
         labels: ["Predicted Delayed", "Predicted On Time"],
         datasets: [{
           data: [stats.predicted_delayed, stats.predicted_on_time],
-          backgroundColor: ["#b8433a", "#4c7a5c"]
+          backgroundColor: ["#e2574c", "#46b880"]
         }]
       },
-      options: { plugins: { legend: { labels: { color: "#8b93a3" } } } }
+      options: { plugins: { legend: { labels: { color: "#8a97a8" } } } }
     });
   } catch (e) {
     document.getElementById("liveStatsRows").textContent = "Could not load live stats (API may be offline).";
@@ -225,6 +302,7 @@ async function loadLiveStats() {
 
 loadModelStats();
 loadLiveStats();
+renderTodaysFlights();
 </script>
 
 </body>
