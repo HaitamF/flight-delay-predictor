@@ -144,9 +144,16 @@
 </div>
 </div>
 
+<footer style="max-width:960px; margin:30px auto 0; padding:18px 20px; text-align:center; font-size:13px; color:var(--muted); border-top:1px solid var(--border);">
+  Built by Haitam Fetouhi ·
+  <a href="https://github.com/HaitamF" style="color:var(--accent); text-decoration:none;">GitHub</a> ·
+  <a href="https://www.linkedin.com/in/haitam-fetouhi-22797b3bb" style="color:var(--accent); text-decoration:none;">LinkedIn</a> ·
+  <a href="mailto:haitam0.3fet@gmail.com" style="color:var(--accent); text-decoration:none;">haitam0.3fet@gmail.com</a>
+</footer>
+
 <script>
 // Set this to wherever the API is actually running.
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "http://172.189.57.25:8000";;
 
 // Placeholder illustrative flights, since a live flight feed isn't built yet
 // (would need a paid aviation-data API — see about.html limitations).
@@ -157,17 +164,33 @@ const TODAYS_FLIGHTS = [
   { label: "Southwest 2210", airport: "Chicago O'Hare International", carrier: "Southwest Airlines Co.", time: "0800-0859", month: 9, dow: 5, dist: 5 },
 ];
 
-function renderTodaysFlights() {
+async function renderTodaysFlights() {
   const el = document.getElementById("todaysFlights");
-  el.innerHTML = TODAYS_FLIGHTS.map(function(f, i) {
+  let flights = TODAYS_FLIGHTS;
+  let isLive = false;
+  try {
+    const res = await fetch(API_BASE.replace(/\/$/, "") + "/todays-flights");
+    const data = await res.json();
+    if (data.flights && data.flights.length > 0) {
+      flights = data.flights;
+      isLive = true;
+    }
+  } catch (e) {
+    // fall back to placeholders below
+  }
+
+  window.CURRENT_FLIGHTS = flights;
+  el.innerHTML = flights.map(function(f, i) {
     return '<div class="flight-row"><div class="flight-info"><strong>' + f.label + '</strong>' +
       '<span>' + f.airport + ' · ' + f.time + '</span></div>' +
       '<button onclick="useFlight(' + i + ')">Try this flight</button></div>';
-  }).join("") + '<div class="flight-note">Illustrative example flights — live flight lookup is a planned addition.</div>';
+  }).join("") + '<div class="flight-note">' +
+    (isLive ? "Live scheduled departures (distance group is approximate)." : "Illustrative example flights — live flight lookup is a planned addition.") +
+    '</div>';
 }
 
 function useFlight(i) {
-  const f = TODAYS_FLIGHTS[i];
+  const f = window.CURRENT_FLIGHTS[i];
   document.getElementById("MONTH").value = f.month;
   document.getElementById("DAY_OF_WEEK").value = f.dow;
   document.getElementById("DEP_TIME_BLK").value = f.time;
