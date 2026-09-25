@@ -195,6 +195,29 @@
   <div class="tag">Chart.js</div>
 </section>
 
+<section>
+  <h2>9. Deployment Runbook (Azure VM)</h2>
+  <p>The VM is not always-on — it's manually started before a demo and stopped afterward to conserve Azure for Students credit. The routine, every time:</p>
+  <ul>
+    <li>Start the VM from the Azure Portal, and check its current public IP (recommended: reserve a static IP once, so this step disappears — otherwise a restart can assign a new one).</li>
+    <li>SSH in: <code>ssh -i "path\to\key.pem" azureuser@&lt;VM_IP&gt;</code></li>
+    <li>Confirm the latest code is present: <code>cd ~/flight-delay-predictor && git pull</code></li>
+    <li>Rebuild and start the containers: <code>sudo docker compose up --build -d</code></li>
+    <li>Verify it's actually running (not just started): <code>sudo docker compose ps</code> should show <code>Up</code>, not <code>Exited</code>.</li>
+    <li>Spot-check both the API (<code>/health</code>, <code>/docs</code>) and the frontend at the VM's public IP before sharing the link.</li>
+  </ul>
+  <div class="highlight">
+    CI/CD (GitHub Actions) automatically tests and redeploys on every push to <code>main</code> — but only if the VM is already running when the deploy job fires. This manual routine is the fallback for whenever the VM was off.
+  </div>
+</section>
+
 </div>
+
+<footer style="max-width:780px; margin:30px auto 0; padding:18px 20px; text-align:center; font-size:13px; color:var(--muted); border-top:1px solid var(--border);">
+  Built by Haitam Fetouhi ·
+  <a href="https://github.com/HaitamF" style="color:var(--accent); text-decoration:none;">GitHub</a> ·
+  <a href="https://www.linkedin.com/in/haitam-fetouhi-22797b3bb" style="color:var(--accent); text-decoration:none;">LinkedIn</a> ·
+  <a href="mailto:haitam0.3fet@gmail.com" style="color:var(--accent); text-decoration:none;">haitam0.3fet@gmail.com</a>
+</footer>
 </body>
 </html>

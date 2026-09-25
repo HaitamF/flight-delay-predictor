@@ -44,7 +44,18 @@ for map_name, mapping in category_maps.items():
     col = map_name.replace("_map", "").upper()
     if col in df.columns:
         df[col] = df[col].map(mapping)
+        
+# --- NEW: evening + bad weather interaction feature ---
+EVENING_BLOCKS = [
+    "1500-1559", "1600-1659", "1700-1759", "1800-1859", "1900-1959",
+]
+df["evening_bad_weather"] = (
+    df["DEP_TIME_BLK"].isin(EVENING_BLOCKS) &
+    ((df["PRCP"] > 0.1) | (df["SNOW"] > 0.1))
+).astype(int)
+# --- end new block ---
 
+categorical_cols = ["DEP_TIME_BLK", "CARRIER_NAME", "DEPARTING_AIRPORT"]
 # The 15 features the v2 model was trained on — order matters for XGBoost
 MODEL_FEATURES = [
     "MONTH", "DAY_OF_WEEK", "DEP_TIME_BLK", "DISTANCE_GROUP",
