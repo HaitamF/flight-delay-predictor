@@ -14,9 +14,6 @@ Flight delays cost travelers time and money, and cost airlines an estimated bill
 That constraint, "only information a real user actually has," shaped almost every technical decision in this project, from which features made it into the final model to how the API enriches a request behind the scenes.
 
 ## Screenshots
-
-![alt text](image-1.png)
-
 **Prediction form**
 
 ![alt text](image-1.png)
